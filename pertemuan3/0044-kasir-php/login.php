@@ -2,16 +2,19 @@
 include 'koneksi.php';
 
 // proses login
-if (isset($_POST['login'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
+    $query = "SELECT * FROM tb_user WHERE username='$username' AND password='$password'";
     $result = mysqli_query($koneksi, $query);
 
     if (mysqli_num_rows($result) == 1) {
         // Login berhasil
-        header("Location: dashboard.php");
+        $data = mysqli_fetch_assoc($result);
+        $_SESSION['username'] = $data['username'];
+        
+        header("Location: index.php");
         exit();
     } else {
         // Login gagal
@@ -45,13 +48,22 @@ if (isset($_POST['login'])) {
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
                                     <div class="card-body">
+                                        <!-- Tampilkan pesan error jika ada -->
+                                        <?php if(isset($_GET['error'])): ?>
+                                            <div class="alert alert-danger" role="alert">
+                                                <?php echo htmlspecialchars($_GET['error']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        
                                         <form method="post">
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputUsername" type="text" placeholder="Username" />
+                                                <!-- TAMBAHKAN name="username" -->
+                                                <input class="form-control" id="inputUsername" name="username" type="text" placeholder="Username" required />
                                                 <label for="inputUsername">Username</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputPassword" type="password" placeholder="Password" />
+                                                <!-- TAMBAHKAN name="password" -->
+                                                <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Password" required />
                                                 <label for="inputPassword">Password</label>
                                             </div>
                                             <div class="form-check mb-3">
